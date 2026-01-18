@@ -1,0 +1,11 @@
+# Binaries
+*.exe
+agent
+
+# Tools & Models (Too heavy for GitHub)
+tools/
+models/
+
+# OS files
+.DS_Store
+Thumbs.db
