@@ -1,86 +1,126 @@
-# Nomad
-## Portable C++ Coding Agent
+# 🎯 Nomad
+### The Portable C++ Coding Agent
 
-## Overview
+**Nomad** is a lightweight, self-contained AI-powered coding assistant engineered for C++ developers who value independence and portability. Packed with advanced language models and zero system footprint, it transforms your SD card into a fully-functional offline development environment—no installation, no system modifications, no compromises.
 
-The Portable C++ Coding Agent is a zero-dependency, command-line tool designed for offline C++ development. Built with Go and Ollama, it provides an AI-powered coding assistant that runs entirely from an SD card or portable storage device, without requiring system-wide installation or modifying the host machine's configuration.
+Built with **Go** and **Ollama**, Nomad is the perfect companion for developers working offline, in restricted environments, or simply seeking ultimate portability without sacrificing intelligence.
 
-## Key Features
+---
 
-- **Portable Deployment**: Runs entirely from SD card or portable storage without system-wide dependencies
-- **Offline Capability**: Complete offline operation with no internet connectivity required after model download
-- **Zero System Footprint**: No installation to system drives (e.g., C:\ drive); all configuration remains local to the deployment directory
-- **Intelligent Code Generation**: Optimized for C++ with support for modern standards (C++20/23)
-- **Context-Aware Assistance**: Maintains conversation context for continuous development support
-- **Clean Code Output**: Produces idiomatic C++ code with meaningful variable names and proper namespace usage
+## ✨ Core Features
 
-## Architecture
+| Feature | Description |
+|---------|-------------|
+| **🚀 True Portability** | Execute entirely from SD card or portable storage—no system installation required |
+| **🔌 Complete Offline** | Full functionality without internet after initial model setup |
+| **🎯 Zero System Impact** | All configuration and models remain isolated—nothing touches your system drives |
+| **🧠 Intelligent Code Generation** | AI-powered assistance optimized for modern C++ (C++20/23) standards |
+| **💬 Context-Aware** | Maintains conversation memory for seamless, continuous development sessions |
+| **✅ Production-Ready Code** | Generates idiomatic C++ with meaningful names and optimized patterns |
 
-The Portable C++ Coding Agent comprises the following components:
+## 🏗️ Project Structure
 
 ```
-/MyCodingAgent
-├── agent.exe              # Main executable (Go-based CLI)
-├── main.go                # Source code
-├── README.md              # Documentation
-├── models/                # AI model storage (initially empty)
+nomad/
+├── agent.exe              ✨ Main executable (Go-powered)
+├── main.go                📝 Source implementation
+├── README.md              📖 Documentation
+├── models/                🧠 AI model directory (self-managed)
 └── tools/
-    └── ollama.exe         # Ollama inference engine
+    └── ollama.exe         ⚙️  Inference engine
 ```
 
-## Installation and Setup
+Every component is self-contained and portable—nothing needs to be installed system-wide.
 
-### Prerequisites
+## 🚀 Getting Started
 
-- Windows operating system
-- Portable storage device (SD card, USB drive, external SSD)
-- Sufficient storage for AI models (approximately 5-10 GB depending on model selection)
+### Requirements
 
-### Initial Setup
+- **OS**: Windows
+- **Storage**: Portable device (SD card, USB drive, external SSD)
+- **Space**: 5–10 GB for AI models
+- **Internet**: Required only for initial model download
 
-1. **Deploy the Agent**
-   - Copy the entire project directory to your portable storage device
+### Setup in 3 Steps
 
-2. **Configure Environment Variables**
-   - Open a terminal in the `tools/` directory
-   - Set the models directory path:
-     ```
-     set OLLAMA_MODELS=E:\MyCodingAgent\models
-     ```
-     (Replace `E:` with your actual drive letter)
+#### 1️⃣ Deploy Nomad
+```bash
+# Copy the entire project to your portable storage device
+# That's it! No installation scripts, no package managers.
+```
 
-3. **Download AI Model**
-   - Execute the following command:
-     ```
-     ollama pull qwen2.5-coder:7b
-     ```
-   - This downloads the AI model to your local models directory
+#### 2️⃣ Configure Model Storage
+```bash
+# Navigate to tools/ directory and run:
+set OLLAMA_MODELS=E:\nomad\models
+# Replace E: with your actual drive letter
+```
 
-### Running the Agent
+#### 3️⃣ Download Your AI Model
+```bash
+# From tools/ directory:
+ollama pull qwen2.5-coder:7b
+# The model downloads to your local models/ directory
+```
 
-- **GUI Method**: Double-click `agent.exe`
-- **CLI Method**: Run `agent.exe` from command line or terminal
+### Running Nomad
 
-## Design Philosophy
+```bash
+# Option 1: Double-click agent.exe
+# Option 2: CLI mode
+./agent.exe
+```
 
-This tool prioritizes portability and independence. All configuration, models, and dependencies are contained within the deployment directory, enabling seamless operation across different machines without system modifications.
+Done. Your portable C++ assistant is ready.
 
-### Code Style Standards
+## 💡 Design Philosophy
 
-The generated code follows competitive programming practices with emphasis on:
-- Modern C++ (C++20/23) features
-- Idiomatic namespace usage
-- Meaningful variable naming conventions
-- Optimized algorithmic patterns
+**Nomad** embodies three core principles:
 
-## Scope and Limitations
+### 🎯 **Independence**
+No system-wide dependencies. No registry modifications. No hidden files scattered across your machine. Everything you need lives in one portable folder.
 
-This agent is specialized for C++ development tasks. Queries outside of C++ programming will be politely declined with a reminder of the tool's specific purpose.
+### ⚡ **Efficiency**
+Competitive programming-inspired code generation. Optimized algorithms. Meaningful variable names. Modern C++ idioms. Fast, intelligent, production-ready output.
 
-## License
+### 🌍 **Universality**
+Plug your device into any Windows machine and code immediately. Same environment, same models, same results. True development portability.
 
-MIT License
+## 📋 What Nomad Can Do
 
-## Support and Contributions
+✅ **C++ Code Generation** – Write, refactor, and optimize C++ with AI assistance  
+✅ **Algorithm Design** – Competitive programming-optimized solutions  
+✅ **Code Review** – Real-time feedback on style, performance, and correctness  
+✅ **Documentation** – Generate clear, professional code comments  
+✅ **Problem-Solving** – Contextual assistance for debugging and architecture  
 
-For issues, feature requests, or contributions, please refer to the project repository documentation.
+### Scope
+
+Nomad is a specialized C++ development assistant. While it can engage with general programming concepts, it maintains focus on C++-specific tasks and optimizations.
+
+---
+
+## 🛠️ Technical Stack
+
+| Component | Technology |
+|-----------|-----------|
+| **Runtime** | Go (compiled binary) |
+| **AI Engine** | Ollama + Qwen 2.5 Coder 7B |
+| **Language** | C++ (target) |
+| **Deployment** | Portable (no system dependencies) |
+
+---
+
+## 📄 License
+
+MIT License – Built for developers, by developers.
+
+---
+
+## 🤝 Contributing
+
+Found a bug? Have an idea? Contributions and feedback are welcome. Check the project repository for guidelines.
+
+---
+
+**Start coding anywhere. Never compromise on intelligence.**
