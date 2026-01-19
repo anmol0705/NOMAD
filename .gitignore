@@ -1,6 +1,7 @@
 # Binaries
 *.exe
 agent
+*.go
 
 # Tools & Models (Too heavy for GitHub)
 tools/

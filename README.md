@@ -1,125 +1,97 @@
-# Nomad
-### The Portable C++ Coding Agent
+# Nomad: The Polyglot Portable Agent
 
-**Nomad** is a lightweight, self-contained AI-powered coding assistant engineered for C++ developers who value independence and portability. Packed with advanced language models and zero system footprint, it transforms your SD card into a fully-functional offline development environment—no installation, no system modifications, no compromises.
+**Nomad** is a zero-footprint, self-configuring AI development environment designed for high-performance coding on the move. By decoupling the inference engine and models from the host operating system, Nomad transforms any portable storage device into a high-tier intelligence hub for C, C++, Python, and Java.
 
-Built with **Go** and **Ollama**, Nomad is the perfect companion for developers working offline, in restricted environments, or simply seeking ultimate portability without sacrificing intelligence.
+Unlike traditional AI wrappers, Nomad is built for the "Isolated Developer"—those working in restricted environments, offline, or across multiple workstations who require a consistent, expert-level pair programmer without system-wide installations.
 
 ---
 
-## ✨ Core Features
+## Technical Architecture
 
-| Feature | Description |
-|---------|-------------|
-| **🚀 True Portability** | Execute entirely from SD card or portable storage—no system installation required |
-| **🔌 Complete Offline** | Full functionality without internet after initial model setup |
-| **🎯 Zero System Impact** | All configuration and models remain isolated—nothing touches your system drives |
-| **🧠 Intelligent Code Generation** | AI-powered assistance optimized for modern C++ (C++20/23) standards |
-| **💬 Context-Aware** | Maintains conversation memory for seamless, continuous development sessions |
-| **✅ Production-Ready Code** | Generates idiomatic C++ with meaningful names and optimized patterns |
+The Nomad ecosystem operates through a dual-binary system to ensure maximum portability and minimal RAM overhead.
 
-## 🏗️ Project Structure
+### 1. The Setup Utility (setup.exe)
+
+The "Builder" responsible for environment auditing. It detects the host OS, maps the drive-relative paths, creates the directory skeleton, and fetches the necessary inference binaries from official sources. It handles the "dirty work" of extraction and configuration.
+
+### 2. The Core Agent (agent.exe)
+
+The "Brain." A Go-powered CLI that manages the lifecycle of the Ollama server in stealth mode. It features:
+
+- **Stateful Memory**: Context-aware conversation tracking.
+- **Self-Healing**: Automatic verification and pulling of missing models.
+- **Stream Processing**: Real-time token delivery with integrated logic-thinking blocks.
+
+---
+
+## Directory Structure
+
+Nomad maintains a strict hierarchy to ensure zero-leakage to the host machine:
 
 ```
 nomad/
-├── agent.exe              ✨ Main executable (Go-powered)
-├── main.go                📝 Source implementation
-├── README.md              📖 Documentation
-├── models/                🧠 AI model directory (self-managed)
-└── tools/
-    └── ollama.exe         ⚙️  Inference engine
+├── setup.exe           # Initial environment builder
+├── agent.exe           # Main interaction interface
+├── models/             # Encapsulated LLM storage (GGUF/Blobs)
+├── tools/              # Localized inference engines (Ollama)
+└── workspace/          # Default directory for generated source code
 ```
-
-Every component is self-contained and portable—nothing needs to be installed system-wide.
-
-## 🚀 Getting Started
-
-### Requirements
-
-- **OS**: Windows
-- **Storage**: Portable device (SD card, USB drive, external SSD)
-- **Space**: 5–10 GB for AI models
-- **Internet**: Required only for initial model download
-
-### Setup in 3 Steps
-
-#### 1️⃣ Deploy Nomad
-```bash
-# Copy the entire project to your portable storage device
-# That's it! No installation scripts, no package managers.
-```
-
-#### 2️⃣ Configure Model Storage
-```bash
-# Navigate to tools/ directory and run:
-set OLLAMA_MODELS=E:\nomad\models
-# Replace E: with your actual drive letter
-```
-
-#### 3️⃣ Download Your AI Model
-```bash
-# From tools/ directory:
-ollama pull qwen2.5-coder:7b
-# The model downloads to your local models/ directory
-```
-
-### Running Nomad
-
-```bash
-# Option 1: Double-click agent.exe
-# Option 2: CLI mode
-./agent.exe
-```
-
-Done. Your portable C++ assistant is ready.
-
-## 💡 Design Philosophy
-
-**Nomad** embodies three core principles:
-
-### 🎯 **Independence**
-No system-wide dependencies. No registry modifications. No hidden files scattered across your machine. Everything you need lives in one portable folder.
-
-### ⚡ **Efficiency**
-Competitive programming-inspired code generation. Optimized algorithms. Meaningful variable names. Modern C++ idioms. Fast, intelligent, production-ready output.
-
-### 🌍 **Universality**
-Plug your device into any Windows machine and code immediately. Same environment, same models, same results. True development portability.
-
-## 📋 What Nomad Can Do
-
-✅ **C++ Code Generation** – Write, refactor, and optimize C++ with AI assistance  
-✅ **Algorithm Design** – Competitive programming-optimized solutions  
-✅ **Code Review** – Real-time feedback on style, performance, and correctness  
-✅ **Documentation** – Generate clear, professional code comments  
-✅ **Problem-Solving** – Contextual assistance for debugging and architecture  
-
-### Scope
-
-Nomad is a specialized C++ development assistant. While it can engage with general programming concepts, it maintains focus on C++-specific tasks and optimizations.
 
 ---
 
-## 🛠️ Technical Stack
+## Polyglot Intelligence Profiles
 
-| Component | Technology |
-|-----------|-----------|
-| **Runtime** | Go (compiled binary) |
-| **AI Engine** | Ollama + Qwen 2.5 Coder 7B |
-| **Language** | C++ (target) |
-| **Deployment** | Portable (no system dependencies) |
+Nomad adapts its internal system prompts based on the selected language stack to enforce industry-standard best practices:
 
----
-
-## 📄 License
-
-MIT License – Built for developers, by developers.
+| Language | Specialization | Coding Standards |
+|----------|---|---|
+| **C++** | Competitive Programming | C++20/23, STL Optimization, Zero-overhead abstraction |
+| **C** | Systems Architecture | C11/C17, Pointer safety, Manual memory management |
+| **Python** | Idiomatic Scripting | PEP 8, Type hints, Functional paradigms |
+| **Java** | Enterprise Logic | SOLID Principles, Design Patterns, Google Style Guide |
 
 ---
 
-## 🤝 Contributing
+## Deployment & Execution
 
-Found a bug? Have an idea? Contributions and feedback are welcome. Check the project repository for guidelines.
+### Phase I: Environment Provisioning
+
+Run `setup.exe` on the portable drive. The utility will identify the OS (Windows/Linux/Darwin) and provision the `tools/` directory.
+
+### Phase II: Agent Initialization
+
+Run `agent.exe`. On the first execution, the agent will:
+
+1. Initialize the Ollama background service via syscall.
+2. Verify the presence of the `qwen2.5-coder:7b` model.
+3. Automatically pull the model into the `/models` directory if missing.
+
+### Phase III: Operation
+
+Select the target language from the boot menu. Nomad will inject a specialized "Expert Personality" into the inference stream. All responses include a `<thinking>` block where the AI plans the architectural approach before emitting code.
+
+---
+
+## Operational Guardrails
+
+- **Protocol Conciseness**: No conversational filler. Nomad focuses on raw logic and implementation.
+- **Context Isolation**: Every session is tracked via integer slices (Context tokens) to maintain long-form memory without bloating RAM.
+- **Stealth Execution**: The inference engine runs with `HideWindow: true` to prevent terminal clutter on the host machine.
+
+---
+
+## Technical Stack
+
+- **Language**: Go (Golang)
+- **Inference Engine**: Ollama (Localized)
+- **Primary Model**: Qwen 2.5 Coder 7B (Optimized for 4-bit quantization)
+- **IPC**: JSON over Localhost HTTP
+
+---
+
+## License
+
+MIT License. Built for developers who believe that intelligence should be as portable as their code.
 
 ---
 

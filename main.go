@@ -10,26 +10,30 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
-	"syscall" // For hiding the background window on Windows
+	"strings"
+	"syscall"
 	"time"
 )
 
 // --- Global Constants & Configuration ---
 
 const (
-	OllamaURL    = "http://localhost:11434/api/generate"
-	ModelName    = "qwen2.5-coder:7b"
-	SystemPrompt = "You are a Legendary Competitive Programmer and C++ Grandmaster. " +
-		"Your mission is to provide ultra-optimized, high-performance C++ code that is both elegant and efficient. " +
-		"CONSTRAINTS: " +
-		"1. Always include 'using namespace std;' at the top to keep the workspace clean and concise. " +
-		"2. Write code like a professional CP veteran: use efficient algorithms (O(log n), O(n), etc.), " +
-		"proper use of STL containers, and clean logic. " +
-		"3. Keep variable names human-like and descriptive yet short (e.g., 'currentMax' instead of 'm'). " +
-		"4. NO UNNECESSARY COMMENTS. The code should be so clean it explains itself. " +
-		"5. STRICT GUARDRAIL: If the user asks about anything other than C++ or logic, politely tell them 'My brain is only compiled for C++' and redirect them. " +
-		"6. Prioritize Modern C++ (C++20/23) features for performance."
+	OllamaURL = "http://localhost:11434/api/generate"
+	ModelName = "qwen2.5-coder:7b"
 )
+
+// LanguageConfig holds specific rules for each language
+type LanguageConfig struct {
+	Name  string
+	Rules string
+}
+
+var languageRegistry = map[string]LanguageConfig{
+	"1": {"C++", "Legendary Competitive Programmer. Use Modern C++20/23, 'using namespace std;', STL containers, and ultra-optimized logic."},
+	"2": {"C", "Low-level Systems Architect. Focus on pointer safety, manual memory management, and C11/C17 standards. No globals."},
+	"3": {"Python", "Pythonic Architect. Follow PEP 8 strictly. Use type hints, list comprehensions, and write idiomatic, readable code."},
+	"4": {"Java", "Enterprise Software Architect. Follow Google Java Style Guide. Prioritize SOLID principles and Design Patterns."},
+}
 
 // --- Data Types for JSON Communication ---
 
@@ -46,7 +50,6 @@ type OllamaResponse struct {
 	Context  []int  `json:"context"`
 }
 
-// Struct to check existing models
 type TagsResponse struct {
 	Models []struct {
 		Name string `json:"name"`
@@ -55,59 +58,51 @@ type TagsResponse struct {
 
 // --- Helper Functions ---
 
-// ensureModelExists checks if the model is available locally; if not, it pulls it.
+func getDynamicSystemPrompt(config LanguageConfig) string {
+	return fmt.Sprintf(`You are the 'Nomad' Polyglot Expert. Your specialty is %s.
+    
+    CORE OPERATIONAL RULES:
+    - THINKING: Before writing any code, briefly describe your logical approach inside <thinking> tags.
+    - STYLE: %s
+    - CONCISENESS: No filler phrases like 'Certainly' or 'I can help with that'. Go straight to the solution.
+    - VARIABLE NAMES: Use descriptive, human-like names (e.g., 'currentUser' instead of 'u').
+    - GUARDRAIL: If the user asks non-coding questions, say 'NOMAD is strictly a coding environment.'`,
+		config.Name, config.Rules)
+}
+
 func ensureModelExists(ollamaPath, modelsPath string) {
-	// 1. Check existing models via API
 	resp, err := http.Get("http://localhost:11434/api/tags")
 	if err == nil {
 		defer resp.Body.Close()
 		var tags TagsResponse
 		json.NewDecoder(resp.Body).Decode(&tags)
-
 		for _, m := range tags.Models {
 			if m.Name == ModelName || m.Name == ModelName+":latest" {
-				return // Model found, exit function
+				return
 			}
 		}
 	}
 
-	// 2. Pull model if not found
 	fmt.Printf("\nModel '%s' not found. Downloading (this may take time)...\n", ModelName)
-
 	pullCmd := exec.Command(ollamaPath, "pull", ModelName)
-
-	// Ensure the pull command uses our custom models folder
 	env := os.Environ()
 	env = append(env, "OLLAMA_MODELS="+modelsPath)
 	pullCmd.Env = env
-
-	// Redirect output to console so user sees progress
 	pullCmd.Stdout = os.Stdout
 	pullCmd.Stderr = os.Stderr
-
-	err = pullCmd.Run()
-	if err != nil {
-		fmt.Println("Error downloading model:", err)
-		return
-	}
-	fmt.Println("✅ Model download complete!")
+	_ = pullCmd.Run()
 }
 
-func askAI(prompt string, context []int) []int {
+func askAI(prompt string, context []int, sysPrompt string) []int {
 	req := OllamaRequest{
 		Model:   ModelName,
 		Prompt:  prompt,
-		System:  SystemPrompt,
+		System:  sysPrompt,
 		Stream:  true,
 		Context: context,
 	}
 
-	jsonData, err := json.Marshal(req)
-	if err != nil {
-		fmt.Println("Error encoding JSON")
-		return nil
-	}
-
+	jsonData, _ := json.Marshal(req)
 	resp, err := http.Post(OllamaURL, "application/json", bytes.NewBuffer(jsonData))
 	if err != nil {
 		fmt.Println("Error connecting to Ollama:", err)
@@ -117,18 +112,14 @@ func askAI(prompt string, context []int) []int {
 
 	decoder := json.NewDecoder(resp.Body)
 	fmt.Print("\nAI: ")
-
 	for {
 		var chunk OllamaResponse
 		if err := decoder.Decode(&chunk); err == io.EOF {
 			break
 		} else if err != nil {
-			fmt.Println("\nError decoding stream:", err)
-			return nil
+			break
 		}
-
 		fmt.Print(chunk.Response)
-
 		if len(chunk.Context) > 0 {
 			context = chunk.Context
 		}
@@ -149,87 +140,71 @@ func checkOllama() bool {
 // --- Main Logic ---
 
 func main() {
-	execPath, err := os.Executable()
-	if err != nil {
-		fmt.Println("Error finding executable path:", err)
-		return
-	}
-
+	execPath, _ := os.Executable()
 	fileDir := filepath.Dir(execPath)
 	ollamaPath := filepath.Join(fileDir, "tools", "ollama.exe")
 	modelsPath := filepath.Join(fileDir, "models")
-
 	_ = os.MkdirAll(modelsPath, 0755)
 
 	var cmd *exec.Cmd
-
-	if checkOllama() {
-		fmt.Println("Ollama is already running. Skipping launch...")
-	} else {
+	if !checkOllama() {
 		fmt.Println("Ollama not found. Starting it now...")
-
 		cmd = exec.Command(ollamaPath, "serve")
 		env := os.Environ()
 		env = append(env, "OLLAMA_MODELS="+modelsPath)
 		cmd.Env = env
 		cmd.SysProcAttr = &syscall.SysProcAttr{HideWindow: true}
-
-		err = cmd.Start()
-		if err != nil {
-			fmt.Println("Error starting Ollama:", err)
-			return
-		}
-
-		ready := false
-		for i := 1; i <= 15; i++ {
-			fmt.Printf("Waiting for Ollama to wake up... (Attempt %d)\n", i)
-			if checkOllama() {
-				ready = true
-				break
-			}
-			time.Sleep(1 * time.Second)
-		}
-
-		if !ready {
-			fmt.Println("❌ Ollama failed to start in time.")
-			return
-		}
-		fmt.Println("✅ Ollama is ready!")
+		_ = cmd.Start()
+		time.Sleep(5 * time.Second) // Initial wait
 	}
 
-	// CHECK & DOWNLOAD MODEL BEFORE STARTING CHAT
 	ensureModelExists(ollamaPath, modelsPath)
 
-	fmt.Println("\n--- C++ AI Assistant is Ready! ---")
-	fmt.Println("Type your question or 'exit' to quit.")
+	// --- Language Selection Menu ---
+	fmt.Println("\n==========================================")
+	fmt.Println("🌍 NOMAD POLYGLOT INTERFACE")
+	fmt.Println("==========================================")
+	fmt.Println("Select your stack:")
+	fmt.Println("1. C++ (Competitive)  2. C (Systems)  3. Python (Scripts)  4. Java (Enterprise)")
+	fmt.Print("\nSelection (1-4) [Default 1]: ")
 
 	scanner := bufio.NewScanner(os.Stdin)
-	var chatContext []int
+	scanner.Scan()
+	choice := scanner.Text()
+	if choice == "" {
+		choice = "1"
+	}
 
+	selectedConfig, exists := languageRegistry[choice]
+	if !exists {
+		selectedConfig = languageRegistry["1"]
+	}
+
+	finalSystemPrompt := getDynamicSystemPrompt(selectedConfig)
+	fmt.Printf("\n✅ Nomad is now configured for %s\n", strings.ToUpper(selectedConfig.Name))
+
+	// --- Chat Loop ---
+	var chatContext []int
 	for {
-		fmt.Print("\nC++ Assistant > ")
+		fmt.Printf("\nNomad [%s] > ", selectedConfig.Name)
 		if !scanner.Scan() {
 			break
 		}
 		userInput := scanner.Text()
 
 		if userInput == "exit" {
-			fmt.Println("Exiting chat...")
 			break
 		}
-
 		if userInput == "" {
 			continue
 		}
 
 		fmt.Println("Thinking...")
-		chatContext = askAI(userInput, chatContext)
+		chatContext = askAI(userInput, chatContext, finalSystemPrompt)
 	}
 
 	if cmd != nil && cmd.Process != nil {
-		fmt.Println("\nStopping Ollama service...")
 		_ = cmd.Process.Kill()
 	}
-
 	fmt.Println("Goodbye!")
 }
