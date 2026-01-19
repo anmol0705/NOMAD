@@ -1,12 +1,31 @@
-# Binaries
+# Nomad: Git Ignore Profile
+
+# Compiled Binaries
 *.exe
+*.exe~
+bin/
 agent
-*.go
+setup
 
-# Tools & Models (Too heavy for GitHub)
-tools/
+# Nomad Environment Folders (Self-Generated)
 models/
+tools/
+workspace/
 
-# OS files
+# Dependency Management
+# (Keep go.mod and go.sum, but ignore vendor if you use it)
+vendor/
+
+# OS Generated Files
 .DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
 Thumbs.db
+
+# IDE Specific
+.vscode/
+.idea/
+*.swp

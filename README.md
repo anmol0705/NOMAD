@@ -1,98 +1,200 @@
-# Nomad: The Polyglot Portable Agent
+# 🧭 Nomad — The Polyglot Portable Agent
 
-**Nomad** is a zero-footprint, self-configuring AI development environment designed for high-performance coding on the move. By decoupling the inference engine and models from the host operating system, Nomad transforms any portable storage device into a high-tier intelligence hub for C, C++, Python, and Java.
+Nomad is a zero-footprint, self-configuring AI development environment engineered for developers who don't stay in one place—or one machine.
 
-Unlike traditional AI wrappers, Nomad is built for the "Isolated Developer"—those working in restricted environments, offline, or across multiple workstations who require a consistent, expert-level pair programmer without system-wide installations.
+It converts any portable storage device into a fully isolated, high-performance AI coding companion for C, C++, Python, and Java, without touching the host OS.
 
----
+**No installs.**
+**No permissions drama.**
+**No environment drift.**
 
-## Technical Architecture
-
-The Nomad ecosystem operates through a dual-binary system to ensure maximum portability and minimal RAM overhead.
-
-### 1. The Setup Utility (setup.exe)
-
-The "Builder" responsible for environment auditing. It detects the host OS, maps the drive-relative paths, creates the directory skeleton, and fetches the necessary inference binaries from official sources. It handles the "dirty work" of extraction and configuration.
-
-### 2. The Core Agent (agent.exe)
-
-The "Brain." A Go-powered CLI that manages the lifecycle of the Ollama server in stealth mode. It features:
-
-- **Stateful Memory**: Context-aware conversation tracking.
-- **Self-Healing**: Automatic verification and pulling of missing models.
-- **Stream Processing**: Real-time token delivery with integrated logic-thinking blocks.
+Just plug in, boot up, and code with a senior-level pair programmer—anywhere.
 
 ---
 
-## Directory Structure
+## Why Nomad Exists
 
-Nomad maintains a strict hierarchy to ensure zero-leakage to the host machine:
+Most AI coding tools assume:
+
+- Stable internet
+- Admin access
+- A single machine
+- A bloated runtime footprint
+
+Nomad assumes none of that.
+
+It's built for the **Isolated Developer**:
+
+- Working in restricted or offline environments
+- Jumping between lab machines, offices, or systems
+- Demanding consistency, determinism, and control
+
+Nomad doesn't wrap intelligence around your system.
+It brings the system with it.
+
+---
+
+## Architecture Overview
+
+Nomad uses a dual-binary architecture designed for maximum portability, minimal RAM usage, and zero host pollution.
+
+### 🧱 1. Setup Utility — setup.exe
+
+**The Builder.**
+
+This utility performs a one-time audit of the host environment and prepares Nomad's internal ecosystem.
+
+**Responsibilities:**
+
+- Detect host OS (Windows / Linux / macOS)
+- Resolve drive-relative paths (no absolute leakage)
+- Create the internal directory skeleton
+- Download and extract verified inference binaries from official sources
+
+Think of it as the logistics team. It does the dirty work so the agent never has to.
+
+### 🧠 2. Core Agent — agent.exe
+
+**The Brain.**
+
+A Go-powered CLI that orchestrates the entire AI workflow while remaining invisible to the host system.
+
+**Key capabilities:**
+
+- **Stateful Memory** — Maintains long-form conversational context
+- **Self-Healing** — Verifies models and auto-pulls missing dependencies
+- **Streamed Inference** — Token-level output with structured reasoning blocks
+- **Stealth Execution** — Background services run without UI clutter
+
+This is where intelligence lives—and stays contained.
+
+---
+
+## Directory Layout (Zero-Leakage Guaranteed)
+
+Nomad enforces a strict internal hierarchy. Nothing escapes. Nothing pollutes.
 
 ```
 nomad/
-├── setup.exe           # Initial environment builder
-├── agent.exe           # Main interaction interface
-├── models/             # Encapsulated LLM storage (GGUF/Blobs)
-├── tools/              # Localized inference engines (Ollama)
-└── workspace/          # Default directory for generated source code
+├── setup.exe           # Environment builder
+├── agent.exe           # Primary interaction interface
+├── models/             # Encapsulated LLM storage (GGUF / blobs)
+├── tools/              # Local inference engines (Ollama runtime)
+└── workspace/          # Default output directory for generated code
 ```
+
+No registry writes.
+No system PATH edits.
+No surprises.
 
 ---
 
 ## Polyglot Intelligence Profiles
 
-Nomad adapts its internal system prompts based on the selected language stack to enforce industry-standard best practices:
+Nomad dynamically injects language-specific expert personas to enforce best practices—not generic autocomplete.
 
-| Language | Specialization | Coding Standards |
+| Language | Focus Area | Enforced Standards |
 |----------|---|---|
-| **C++** | Competitive Programming | C++20/23, STL Optimization, Zero-overhead abstraction |
-| **C** | Systems Architecture | C11/C17, Pointer safety, Manual memory management |
-| **Python** | Idiomatic Scripting | PEP 8, Type hints, Functional paradigms |
-| **Java** | Enterprise Logic | SOLID Principles, Design Patterns, Google Style Guide |
+| **C++** | Competitive & Systems | C++20/23, STL optimization, zero-overhead abstractions |
+| **C** | Low-Level Architecture | C11/C17, pointer discipline, manual memory correctness |
+| **Python** | Idiomatic Engineering | PEP 8, type hints, functional patterns |
+| **Java** | Enterprise Design | SOLID, design patterns, Google Style Guide |
+
+Each profile optimizes not just syntax—but thinking style.
 
 ---
 
-## Deployment & Execution
+## Build Instructions
 
-### Phase I: Environment Provisioning
+```bash
+// Build the Setup Utility
+go build -ldflags="-s -w" -o setup.exe setup.go
 
-Run `setup.exe` on the portable drive. The utility will identify the OS (Windows/Linux/Darwin) and provision the `tools/` directory.
+// Build the Core Agent
+go build -ldflags="-s -w" -o agent.exe main.go
+```
 
-### Phase II: Agent Initialization
+Lean binaries. No debug baggage.
 
-Run `agent.exe`. On the first execution, the agent will:
+---
 
-1. Initialize the Ollama background service via syscall.
-2. Verify the presence of the `qwen2.5-coder:7b` model.
-3. Automatically pull the model into the `/models` directory if missing.
+## Execution Flow
 
-### Phase III: Operation
+### Phase I — Environment Provisioning
 
-Select the target language from the boot menu. Nomad will inject a specialized "Expert Personality" into the inference stream. All responses include a `<thinking>` block where the AI plans the architectural approach before emitting code.
+Run `setup.exe` directly from the portable drive.
+
+Nomad will:
+
+- Identify the host OS
+- Provision the `tools/` directory
+- Prepare the inference runtime
+
+One-time operation per device.
+
+### Phase II — Agent Initialization
+
+Run `agent.exe`.
+
+On first launch, Nomad will:
+
+- Spawn the Ollama server via syscall (hidden execution)
+- Verify availability of `qwen2.5-coder:7b`
+- Pull the model automatically if missing
+
+No prompts. No babysitting.
+
+### Phase III — Operation
+
+Select your target language from the boot menu.
+
+Nomad will:
+
+- Inject the corresponding expert system prompt
+- Maintain session memory using compact context tokens
+- Emit responses with a structured `<thinking>` block before code output
+
+You see the plan. Then the implementation.
 
 ---
 
 ## Operational Guardrails
 
-- **Protocol Conciseness**: No conversational filler. Nomad focuses on raw logic and implementation.
-- **Context Isolation**: Every session is tracked via integer slices (Context tokens) to maintain long-form memory without bloating RAM.
-- **Stealth Execution**: The inference engine runs with `HideWindow: true` to prevent terminal clutter on the host machine.
+Nomad enforces discipline by design:
+
+- **No Filler** — Output is logic-first, not conversational
+- **Context Isolation** — Memory is token-tracked, not RAM-bloated
+- **Stealth Mode** — Background processes never hijack the host terminal
+- **Deterministic Behavior** — Same prompt, same intelligence, anywhere
+
+This is a tool—not a chatbot.
 
 ---
 
-## Technical Stack
+## Technology Stack
 
 - **Language**: Go (Golang)
-- **Inference Engine**: Ollama (Localized)
-- **Primary Model**: Qwen 2.5 Coder 7B (Optimized for 4-bit quantization)
-- **IPC**: JSON over Localhost HTTP
+- **Inference Runtime**: Ollama (localized)
+- **Primary Model**: Qwen 2.5 Coder 7B (4-bit quantized for performance and portability)
+- **IPC**: JSON over localhost HTTP
 
 ---
 
 ## License
 
-MIT License. Built for developers who believe that intelligence should be as portable as their code.
+MIT License.
+
+Free as in freedom.
+Portable as your code.
 
 ---
 
-**Start coding anywhere. Never compromise on intelligence.**
+## Final Word
+
+Nomad isn't trying to be flashy.
+It's trying to be reliable in places where flash fails.
+
+If you believe intelligence should move with you—not tie you down—
+you already understand why Nomad exists.
+
+**Plug in. Boot up. Stay sharp.**
