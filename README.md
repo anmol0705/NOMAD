@@ -1,4 +1,4 @@
-# 🎯 Nomad
+# Nomad
 ### The Portable C++ Coding Agent
 
 **Nomad** is a lightweight, self-contained AI-powered coding assistant engineered for C++ developers who value independence and portability. Packed with advanced language models and zero system footprint, it transforms your SD card into a fully-functional offline development environment—no installation, no system modifications, no compromises.

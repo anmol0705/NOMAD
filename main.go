@@ -25,7 +25,7 @@ const (
 		"1. Always include 'using namespace std;' at the top to keep the workspace clean and concise. " +
 		"2. Write code like a professional CP veteran: use efficient algorithms (O(log n), O(n), etc.), " +
 		"proper use of STL containers, and clean logic. " +
-		"3. Keep variable names human-like and descriptive yet short (e.g., 'currentMax' instead of 'm' or 'llm_generated_variable_name'). " +
+		"3. Keep variable names human-like and descriptive yet short (e.g., 'currentMax' instead of 'm'). " +
 		"4. NO UNNECESSARY COMMENTS. The code should be so clean it explains itself. " +
 		"5. STRICT GUARDRAIL: If the user asks about anything other than C++ or logic, politely tell them 'My brain is only compiled for C++' and redirect them. " +
 		"6. Prioritize Modern C++ (C++20/23) features for performance."
@@ -46,14 +46,59 @@ type OllamaResponse struct {
 	Context  []int  `json:"context"`
 }
 
+// Struct to check existing models
+type TagsResponse struct {
+	Models []struct {
+		Name string `json:"name"`
+	} `json:"models"`
+}
+
 // --- Helper Functions ---
+
+// ensureModelExists checks if the model is available locally; if not, it pulls it.
+func ensureModelExists(ollamaPath, modelsPath string) {
+	// 1. Check existing models via API
+	resp, err := http.Get("http://localhost:11434/api/tags")
+	if err == nil {
+		defer resp.Body.Close()
+		var tags TagsResponse
+		json.NewDecoder(resp.Body).Decode(&tags)
+
+		for _, m := range tags.Models {
+			if m.Name == ModelName || m.Name == ModelName+":latest" {
+				return // Model found, exit function
+			}
+		}
+	}
+
+	// 2. Pull model if not found
+	fmt.Printf("\nModel '%s' not found. Downloading (this may take time)...\n", ModelName)
+
+	pullCmd := exec.Command(ollamaPath, "pull", ModelName)
+
+	// Ensure the pull command uses our custom models folder
+	env := os.Environ()
+	env = append(env, "OLLAMA_MODELS="+modelsPath)
+	pullCmd.Env = env
+
+	// Redirect output to console so user sees progress
+	pullCmd.Stdout = os.Stdout
+	pullCmd.Stderr = os.Stderr
+
+	err = pullCmd.Run()
+	if err != nil {
+		fmt.Println("Error downloading model:", err)
+		return
+	}
+	fmt.Println("✅ Model download complete!")
+}
 
 func askAI(prompt string, context []int) []int {
 	req := OllamaRequest{
 		Model:   ModelName,
 		Prompt:  prompt,
 		System:  SystemPrompt,
-		Stream:  true, // 1. Stream enable kiya
+		Stream:  true,
 		Context: context,
 	}
 
@@ -70,30 +115,25 @@ func askAI(prompt string, context []int) []int {
 	}
 	defer resp.Body.Close()
 
-	// 2. JSON Decoder initialize kiya stream read karne ke liye
 	decoder := json.NewDecoder(resp.Body)
-
-	fmt.Print("\nAI: ") // Response header
+	fmt.Print("\nAI: ")
 
 	for {
 		var chunk OllamaResponse
-		// 3. Ek-ek chunk (token) decode karo
 		if err := decoder.Decode(&chunk); err == io.EOF {
-			break // Stream khatam ho gayi
+			break
 		} else if err != nil {
 			fmt.Println("\nError decoding stream:", err)
 			return nil
 		}
 
-		// 4. Token-by-token print (no newline)
 		fmt.Print(chunk.Response)
 
-		// 5. Jab final chunk aaye, context update karo
 		if len(chunk.Context) > 0 {
 			context = chunk.Context
 		}
 	}
-	fmt.Println() // Response ke baad ek naya line
+	fmt.Println()
 	return context
 }
 
@@ -109,7 +149,6 @@ func checkOllama() bool {
 // --- Main Logic ---
 
 func main() {
-	// 1. Setup Paths
 	execPath, err := os.Executable()
 	if err != nil {
 		fmt.Println("Error finding executable path:", err)
@@ -120,20 +159,16 @@ func main() {
 	ollamaPath := filepath.Join(fileDir, "tools", "ollama.exe")
 	modelsPath := filepath.Join(fileDir, "models")
 
-	// 2. Ensure models folder exists
 	_ = os.MkdirAll(modelsPath, 0755)
 
 	var cmd *exec.Cmd
 
-	// 3. Launch or Skip Ollama
 	if checkOllama() {
 		fmt.Println("Ollama is already running. Skipping launch...")
 	} else {
 		fmt.Println("Ollama not found. Starting it now...")
 
 		cmd = exec.Command(ollamaPath, "serve")
-
-		// Set environment and hide window on Windows
 		env := os.Environ()
 		env = append(env, "OLLAMA_MODELS="+modelsPath)
 		cmd.Env = env
@@ -145,7 +180,6 @@ func main() {
 			return
 		}
 
-		// Health Check Loop
 		ready := false
 		for i := 1; i <= 15; i++ {
 			fmt.Printf("Waiting for Ollama to wake up... (Attempt %d)\n", i)
@@ -163,7 +197,9 @@ func main() {
 		fmt.Println("✅ Ollama is ready!")
 	}
 
-	// 4. The Agent Loop
+	// CHECK & DOWNLOAD MODEL BEFORE STARTING CHAT
+	ensureModelExists(ollamaPath, modelsPath)
+
 	fmt.Println("\n--- C++ AI Assistant is Ready! ---")
 	fmt.Println("Type your question or 'exit' to quit.")
 
@@ -172,7 +208,6 @@ func main() {
 
 	for {
 		fmt.Print("\nC++ Assistant > ")
-
 		if !scanner.Scan() {
 			break
 		}
@@ -191,7 +226,6 @@ func main() {
 		chatContext = askAI(userInput, chatContext)
 	}
 
-	// 5. Cleanup
 	if cmd != nil && cmd.Process != nil {
 		fmt.Println("\nStopping Ollama service...")
 		_ = cmd.Process.Kill()
