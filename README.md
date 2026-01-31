@@ -14,23 +14,7 @@ Just plug in, boot up, and code with a senior-level pair programmer—anywhere.
 
 ## Why Nomad Exists
 
-Most AI coding tools assume:
-
-- Stable internet
-- Admin access
-- A single machine
-- A bloated runtime footprint
-
-Nomad assumes none of that.
-
-It's built for the **Isolated Developer**:
-
-- Working in restricted or offline environments
-- Jumping between lab machines, offices, or systems
-- Demanding consistency, determinism, and control
-
-Nomad doesn't wrap intelligence around your system.
-It brings the system with it.
+Most AI coding tools assume a stable internet, admin access, and a bloated runtime footprint. Nomad assumes none of that. It is built for the **Isolated Developer** working in restricted or offline environments who demands consistency, determinism, and control. Nomad doesn't wrap intelligence around your system—it brings the system with it.
 
 ---
 
@@ -44,29 +28,17 @@ Nomad uses a dual-binary architecture designed for maximum portability, minimal 
 
 This utility performs a one-time audit of the host environment and prepares Nomad's internal ecosystem.
 
-**Responsibilities:**
-
-- Detect host OS (Windows / Linux / macOS)
-- Resolve drive-relative paths (no absolute leakage)
-- Create the internal directory skeleton
-- Download and extract verified inference binaries from official sources
-
-Think of it as the logistics team. It does the dirty work so the agent never has to.
+**Responsibilities:** Detects host OS (Windows/Linux/macOS), resolves drive-relative paths, creates the internal directory skeleton, and downloads/unzips verified inference binaries.
 
 ### 🧠 2. Core Agent — agent.exe
 
-**The Brain.**
+**The Brain.** A Go-powered CLI that orchestrates the AI workflow while remaining invisible to the host system.
 
-A Go-powered CLI that orchestrates the entire AI workflow while remaining invisible to the host system.
+**Intelligence Manager:** Features a dynamic Model Selector that prioritizes CPU-optimized Small Language Models (SLMs) for lag-free performance on standard hardware.
 
-**Key capabilities:**
+**Stateful Memory:** Maintains conversational context via session-based tokens.
 
-- **Stateful Memory** — Maintains long-form conversational context
-- **Self-Healing** — Verifies models and auto-pulls missing dependencies
-- **Streamed Inference** — Token-level output with structured reasoning blocks
-- **Stealth Execution** — Background services run without UI clutter
-
-This is where intelligence lives—and stays contained.
+**File Generation:** Includes a specialized save command to extract pure code and write it to the workspace.
 
 ---
 
@@ -76,45 +48,41 @@ Nomad enforces a strict internal hierarchy. Nothing escapes. Nothing pollutes.
 
 ```
 nomad/
-├── setup.exe           # Environment builder
-├── agent.exe           # Primary interaction interface
+├── setup.exe           # Environment builder & engine provisioner
+├── agent.exe           # Primary interaction & intelligence interface
 ├── models/             # Encapsulated LLM storage (GGUF / blobs)
 ├── tools/              # Local inference engines (Ollama runtime)
 └── workspace/          # Default output directory for generated code
 ```
 
-No registry writes.
-No system PATH edits.
-No surprises.
+No registry writes. No system PATH edits. No machine-specific artifacts.
 
 ---
 
-## Polyglot Intelligence Profiles
+## Intelligence Registry (CPU-Optimized)
 
-Nomad dynamically injects language-specific expert personas to enforce best practices—not generic autocomplete.
+In 2026, the focus is on efficiency. Nomad prioritizes "Small Language Models" (SLMs) that provide high intelligence with minimal lag on standard CPUs.
 
-| Language | Focus Area | Enforced Standards |
-|----------|---|---|
-| **C++** | Competitive & Systems | C++20/23, STL optimization, zero-overhead abstractions |
-| **C** | Low-Level Architecture | C11/C17, pointer discipline, manual memory correctness |
-| **Python** | Idiomatic Engineering | PEP 8, type hints, functional patterns |
-| **Java** | Enterprise Design | SOLID, design patterns, Google Style Guide |
-
-Each profile optimizes not just syntax—but thinking style.
+| Choice | Model ID | Size | Target Hardware |
+|--------|----------|------|----------|
+| 1 | qwen2.5-coder:3b | 1.9 GB | Recommended (Balanced 4-8GB RAM) |
+| 2 | qwen2.5-coder:1.5b | 900 MB | Ultra-Fast (<4GB RAM / Legacy CPUs) |
+| 3 | qwen2.5-coder:7b | 4.7 GB | High Logic (8GB+ RAM / Modern CPUs) |
+| 4 | phi3:mini | 2.3 GB | Microsoft Logic (Reasoning focused) |
 
 ---
 
 ## Build Instructions
 
 ```bash
-// Build the Setup Utility
+// Compile the Provisioner
 go build -ldflags="-s -w" -o setup.exe setup.go
 
-// Build the Core Agent
+// Compile the Agent
 go build -ldflags="-s -w" -o agent.exe main.go
 ```
 
-Lean binaries. No debug baggage.
+Note: Uses -s -w flags to strip debug symbols for the smallest possible portable binary size.
 
 ---
 
@@ -122,61 +90,33 @@ Lean binaries. No debug baggage.
 
 ### Phase I — Environment Provisioning
 
-Run `setup.exe` directly from the portable drive.
-
-Nomad will:
-
-- Identify the host OS
-- Provision the `tools/` directory
-- Prepare the inference runtime
-
-One-time operation per device.
+Run setup.exe from the portable drive. It identifies the host OS, provisions the tools/ directory, and downloads the inference runtime.
 
 ### Phase II — Agent Initialization
 
-Run `agent.exe`.
+Run agent.exe. Select your "Brain" (Model) and "Stack" (Language). If the model is missing, Nomad pulls it automatically to the /models folder using the localized engine.
 
-On first launch, Nomad will:
+### Phase III — Development Loop
 
-- Spawn the Ollama server via syscall (hidden execution)
-- Verify availability of `qwen2.5-coder:7b`
-- Pull the model automatically if missing
+Interact with the agent. When you are satisfied with a solution, use the save command:
 
-No prompts. No babysitting.
+```
+Nomad [C++] > save my_algorithm
+```
 
-### Phase III — Operation
-
-Select your target language from the boot menu.
-
-Nomad will:
-
-- Inject the corresponding expert system prompt
-- Maintain session memory using compact context tokens
-- Emit responses with a structured `<thinking>` block before code output
-
-You see the plan. Then the implementation.
-
----
-
-## Operational Guardrails
-
-Nomad enforces discipline by design:
-
-- **No Filler** — Output is logic-first, not conversational
-- **Context Isolation** — Memory is token-tracked, not RAM-bloated
-- **Stealth Mode** — Background processes never hijack the host terminal
-- **Deterministic Behavior** — Same prompt, same intelligence, anywhere
-
-This is a tool—not a chatbot.
+The agent extracts the pure code block and saves it as workspace/my_algorithm.cpp.
 
 ---
 
 ## Technology Stack
 
-- **Language**: Go (Golang)
-- **Inference Runtime**: Ollama (localized)
-- **Primary Model**: Qwen 2.5 Coder 7B (4-bit quantized for performance and portability)
-- **IPC**: JSON over localhost HTTP
+**Language:** Go (Golang)
+
+**Inference Runtime:** Ollama (Localized)
+
+**Primary Architecture:** Qwen 2.5 Coder (optimized for CPU/RAM constraints)
+
+**Quantization:** 4-bit (K-Quants) for maximum logic-to-size ratio
 
 ---
 
